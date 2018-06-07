@@ -8,7 +8,7 @@
 
 // 10 minutes by start
 int timer_seconds=60*10; // Отображение секунд 
-long prevmicros = 0;
+unsigned long prevmicros = 0;
 
 TM1637 tm1637(CLK, DIO); // Настройка индикатора
 
