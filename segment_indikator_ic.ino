@@ -6,8 +6,10 @@
 #define BTN_PLUS_PIN 4
 #define BTN_MINUS_PIN 5
 #define ZUMMER_PIN 7
+#define TIMEOUT_LONG_PRESS 200
+#define LONG_PRESS_ACTIVATE 2000
 
-#define DEFAULT_TIME 30 // seconds
+#define DEFAULT_TIME 120 // seconds
 // 10 minutes by start
 int timer_seconds=DEFAULT_TIME; // Отображение секунд 
 unsigned long prevmicros = 0;
@@ -56,6 +58,7 @@ void loop()
           prevmicrosTwoBtn = millis();
           is_work = !is_work;
           tone(ZUMMER_PIN, 500, 200);
+          return true;
         }
     }
 
@@ -67,7 +70,10 @@ void loop()
     doClickMinus(btnMinus);
 
     doDisplayEndTimer();
-    onDisplayTimer();
+    if((millis()-prevmicros) > 1000) {
+      prevmicros = millis();
+      onDisplayTimer();
+    }
 }
 
 void doClickPlus(Bounce btnPlus)
@@ -103,13 +109,13 @@ void doClickMinus(Bounce btnMinus)
 
 void doLongPlus(Bounce btnPlus, Bounce btnMinus)
 {
-   if (btnPlus.read() && !btnMinus.read() && (millis()-prevmicrosPlusBtn) > 2000) {
+   if (btnPlus.read() && !btnMinus.read() && (millis()-prevmicrosPlusBtn) > LONG_PRESS_ACTIVATE) {
           prevmicrosPlusBtn = millis();
           Serial.println("2 seconds");
           is_long_plus = true;
     }
 
-    if(is_long_plus && (millis()-prevmicrosPlusBtnMin) > 700) {
+    if(is_long_plus && (millis()-prevmicrosPlusBtnMin) > TIMEOUT_LONG_PRESS) {
         prevmicrosPlusBtnMin = millis();
         timer_seconds = timer_seconds+60;
         onDisplayTimer();
@@ -121,12 +127,12 @@ void doLongPlus(Bounce btnPlus, Bounce btnMinus)
 void doLongMinus(Bounce btnPlus, Bounce btnMinus)
 {
    // long minus
-    if (!btnPlus.read() && btnMinus.read() && (millis()-prevmicrosMiunsBtn) > 2000) {
+    if (!btnPlus.read() && btnMinus.read() && (millis()-prevmicrosMiunsBtn) > LONG_PRESS_ACTIVATE) {
           prevmicrosMiunsBtn = millis();
           is_long_minus = true;
     }
 
-    if(is_long_minus && (millis()-prevmicrosMinusBtnMin) > 700) {
+    if(is_long_minus && (millis()-prevmicrosMinusBtnMin) > TIMEOUT_LONG_PRESS) {
         prevmicrosMinusBtnMin = millis();
         timer_seconds = timer_seconds-60;
         onDisplayTimer();
@@ -164,8 +170,8 @@ void onDisplayTimer()
         thirdnum = 0;
         fournum = seconds;
     }
-    if((millis()-prevmicros) > 1000) {
-        prevmicros = millis();
+    //if((millis()-prevmicros) > 1000) {
+   //     prevmicros = millis();
         if (is_work) {
           timer_seconds = timer_seconds - 1;
         }
@@ -187,7 +193,7 @@ void onDisplayTimer()
       //  Serial.print(fournum); 
       
       //  Serial.print("\n");
-    } 
+  //  } 
 }
 
 int zummerCount = 5;
